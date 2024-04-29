@@ -15,17 +15,17 @@ function ideal_oe_prop_exp_algorithm(
     active_cust_der_size,
     dss_engine
 )
-"""
-Function to calculate the Ideal OE proportional allocation for exports in each time step.
-This is used in all time steps of the day.    
-:param names_active_cust: the list of active customers (Julia DataFrame)
-:param active_cust_der_size: the size of active customers' DERs 
-:param dss_engine: the OpenDSS engine
-:return ideal_oe_prop_exp_values: the calculated ideal OE value for proportional allocation and exports
-:return lv_tx_util: the transformer utilisation when using the calculated OE value
-:return lv_hof_util_max: the maximum utilisation of the LV head of feeder when using the calculated OE value
-:return volt_all_cust_temp: voltages on all customers when using the calculated OE value 
-"""
+    """
+    Function to calculate the Ideal OE proportional allocation for exports in each time step.
+    This is used in all time steps of the day.    
+    :param names_active_cust: the list of active customers (Julia DataFrame)
+    :param active_cust_der_size: the size of active customers' DERs 
+    :param dss_engine: the OpenDSS engine
+    :return ideal_oe_prop_exp_values: the calculated ideal OE value for proportional allocation and exports
+    :return lv_tx_util: the transformer utilisation when using the calculated OE value
+    :return lv_hof_util_max: the maximum utilisation of the LV head of feeder when using the calculated OE value
+    :return volt_all_cust_temp: voltages on all customers when using the calculated OE value 
+    """
     DSS = dss_engine
 
     # load LV network data from the OpenDSS model

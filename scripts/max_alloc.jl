@@ -6,8 +6,7 @@ function ideal_oe_max_exp_algorithm(
     names_active_cust,
     active_cust_der_size,
     dss_engine = OpenDSSDirect,
-    data_frames = DataFrames
-)
+    data_frames = DataFrames)
     """
     Function to calculate the Ideal OE maximum allocation for exports in each time step.
     This is used in all time steps of the day.    
@@ -291,6 +290,9 @@ ideal_oe_max_day_exp_lv_tx_util = zeros(num_of_time_step)
 ideal_oe_max_day_exp_lv_hof_util_max = zeros(num_of_time_step)
 ideal_oe_max_day_exp_volt_all_cust = zeros(length(load_list), num_of_time_step)
 
+valid_exp_voltage_lv_cust = zeros(length(load_list), num_of_time_step)
+reactive_p_cust = zeros(length(load_list), num_of_time_step)
+
 # Calculate the OE values for each time step of the day in a for loop
 for itime in range(1,num_of_time_step)
     # Set vsource with the distribution transformer voltage magnitudes and angles for the time step at the primary side
@@ -317,6 +319,21 @@ for itime in range(1,num_of_time_step)
     ideal_oe_max_day_exp_volt_all_cust[:,itime]  =results[4]
     # write results to csv
 
+    # verify voltages in all customers
+    all_volt_temp = [] # initialise array to collect the voltages
+    reactive_p_temp = []
+    for ild in range(1,length(load_list))
+        DSS.Circuit.SetActiveElement("load."*string(load_list[ild])) # select the customer
+        push!(reactive_p_temp, imag(DSS.CktElement.Powers()[1]))
+        push!(all_volt_temp, DSS.CktElement.VoltagesMagAng()[1]) # extract its voltage magnitude
+    end
+    
+    println(DSS.CktElement.Powers())
+
+    valid_exp_voltage_lv_cust[:, itime] = all_volt_temp # save voltages from all customers for the current time step 
+    reactive_p_cust[:, itime] = reactive_p_temp # save voltages from all customers for the current time step 
+
+
     push!(table_of_results,(results[1],results[2],results[3],results[4]))
 
     # Reset active customers to profile values for the next time step
@@ -329,13 +346,41 @@ for itime in range(1,num_of_time_step)
     end
 end
 
-result_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/results.csv"
-active_exp_val_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/active_exp_values.csv"
-all_exp_val_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/all_volt_values.csv"
+# result_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/var/results.csv"
+# active_exp_val_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/var/active_exp_values.csv"
+# all_exp_val_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/var/all_volt_values.csv"
+volt_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/all_volt_values.csv"
+cust_volts = DFs.DataFrame(valid_exp_voltage_lv_cust,Symbol.(Vector(range(1,num_of_time_step))))
+re_p_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/all_volt_values.csv"
+cust_reactive = DFs.DataFrame(reactive_p_cust,Symbol.(Vector(range(1,num_of_time_step))))
 
-active = DFs.DataFrame(ideal_oe_max_day_exp_values,Symbol.(Vector(range(1,num_of_time_step))))
-volt_all = DFs.DataFrame(ideal_oe_max_day_exp_volt_all_cust,Symbol.(Vector(range(1,num_of_time_step))))
+# active = DFs.DataFrame(ideal_oe_max_day_exp_values,Symbol.(Vector(range(1,num_of_time_step))))
+# volt_all = DFs.DataFrame(ideal_oe_max_day_exp_volt_all_cust,Symbol.(Vector(range(1,num_of_time_step))))
 
-CSV.write(result_path, table_of_results)
-CSV.write(active_exp_val_path, active)
-CSV.write(all_exp_val_path, volt_all)
+# CSV.write(result_path, table_of_results)
+# CSV.write(active_exp_val_path, active)
+# CSV.write(all_exp_val_path, volt_all)
+CSV.write(volt_path, cust_volts)
+CSV.write(re_p_path, cust_reactive)
+
+
+
+# Check network-wide voltage compliance
+valid_exp_voltage_lv_cust_10min = zeros(length(load_list), 144)
+valid_exp_voltage_lv_cust_10min_sorted = zeros(length(load_list), 144)
+global cont_exp = 0
+for ild in range(1,length(load_list))
+    for i in range(1,144)
+        valid_exp_voltage_lv_cust_10min[ild,i] = (ideal_oe_max_day_exp_volt_all_cust[ild,2*i-1] + ideal_oe_max_day_exp_volt_all_cust[ild,2*i]) / 2
+    end
+    valid_exp_voltage_lv_cust_10min_sorted[ild,:] = sort(valid_exp_voltage_lv_cust_10min[ild,:])
+    if (valid_exp_voltage_lv_cust_10min_sorted[ild,143] > 253) || (valid_exp_voltage_lv_cust_10min_sorted[ild,2] < 216)
+        global cont_exp += 1
+    end
+end
+
+exp_voltage_compliance = (1 - ((cont_exp) / length(load_list))) * 100
+
+println(exp_voltage_compliance)
+
+# look at inverter control for ideal case
