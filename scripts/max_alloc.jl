@@ -328,7 +328,7 @@ for itime in range(1,num_of_time_step)
         push!(all_volt_temp, DSS.CktElement.VoltagesMagAng()[1]) # extract its voltage magnitude
     end
     
-    println(DSS.CktElement.Powers())
+    # println(DSS.CktElement.Powers())
 
     valid_exp_voltage_lv_cust[:, itime] = all_volt_temp # save voltages from all customers for the current time step 
     reactive_p_cust[:, itime] = reactive_p_temp # save voltages from all customers for the current time step 
@@ -351,7 +351,7 @@ end
 # all_exp_val_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/var/all_volt_values.csv"
 volt_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/all_volt_values.csv"
 cust_volts = DFs.DataFrame(valid_exp_voltage_lv_cust,Symbol.(Vector(range(1,num_of_time_step))))
-re_p_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/all_volt_values.csv"
+re_p_path = "/Users/abond/OEAlgs-Julia/data/max_alloc/all_reactive_values.csv"
 cust_reactive = DFs.DataFrame(reactive_p_cust,Symbol.(Vector(range(1,num_of_time_step))))
 
 # active = DFs.DataFrame(ideal_oe_max_day_exp_values,Symbol.(Vector(range(1,num_of_time_step))))
