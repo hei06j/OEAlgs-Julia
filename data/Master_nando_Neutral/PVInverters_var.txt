@@ -1,0 +1,16 @@
+!-- New XYCurve.vw_curve npts=4 Yarray=(1.0, 1.0, 0.2, 0.2) XArray=(0.5, 1.1, 1.13, 2.0)
+New XYCurve.vv_curve npts=6 Yarray=(0.44, 0.44, 0.0, 0.0, -0.60, -0.60) XArray=(0.5, 0.9, 0.96, 1.04, 1.12, 1.5)
+New InvControl.InvPVCtrl mode=VOLTVAR voltage_curvex_ref=rated hysteresis_offset=-0.025 vvc_curve1=vv_curve EventLog=yes
+
+!-- voltage_curvex_ref already rated by default - try average windowlen
+!--DeltaP_factor=0.1 voltagechangetolerance=0.001 refreactivepower=VARAVAL VoltwattYAxis=KVARATINGPU
+
+!-- voltwatt_curve=vw_curve
+
+!-- change controls line 3 no control would be commenting out line 3
+
+!-- different controls: voltvar, voltwatt, constant pf, also try no control
+
+!-- combine all algs in one master script so I can easily flick through and see results
+
+!-- upload results meaningfully in a folder (must have graphs and csv output; name files appropriately)

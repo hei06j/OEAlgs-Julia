@@ -3,6 +3,8 @@
 # Pkg.add("CSV")
 # Pkg.add("DataFrames")
 
+using Pkg
+Pkg.activate("./")
 using OpenDSSDirect
 using CSV
 using DataFrames
@@ -10,6 +12,7 @@ using DataFrames
 const DFs = DataFrames
 const DSS = OpenDSSDirect
 
+##
 function ideal_oe_prop_exp_algorithm(
     names_active_cust, 
     active_cust_der_size,
@@ -71,12 +74,14 @@ function ideal_oe_prop_exp_algorithm(
         
         # initialisation of variable to save voltage on all customers for the current OE value
         volt_all_cust_temp = [] 
+        volt_all_cust_temp_p2n = [] 
         
         # collect the voltage from all customers
         for ild in range(1,length(load_list))
             DSS.Circuit.SetActiveElement("load."*string(load_list[ild])) # select a customer
-            println(DSS.CktElement.VoltagesMagAng()[1])
-            push!(volt_all_cust_temp, DSS.CktElement.VoltagesMagAng()[1]) # extract its voltage magnitude
+            println(voltages[1])
+            push!(volt_all_cust_temp, voltages[1]) # extract its voltage magnitude
+            push!(volt_all_cust_temp_p2n, voltages[1] - voltages[2]) # extract its voltage magnitude
         end
         
         # verify if the voltage of any of the customers is above the maximum statutory limit
@@ -173,11 +178,21 @@ function ideal_oe_prop_exp_algorithm(
         end
     end
 
-    ideal_oe_prop_exp_values = alloc_exp_p_temp # rename the allocated OE value
+    ideal_or_active_customer_kvars = []
+    ideal_or_active_customer_voltages = []
+    for ild in range(1,nrow(names_active_cust))
+        DSS.Circuit.SetActiveElement("load."*names_active_cust[!,1][ild]) # select an active customer
+        push!(ideal_or_active_customer_kvars, imag(DSS.CktElement.Powers()[1])) # save the current reactive power of the active customer
+        push!(ideal_or_active_customer_voltages, abs.(DSS.CktElement.Voltages()[1]))
+    end
+    
+    ideal_oe_prop_exp_values = alloc_exp_p_temp # rename the allocated OE value 
 
-    return ideal_oe_prop_exp_values, lv_tx_util, lv_hof_util_max, volt_all_cust_temp # return the calculated OE value for the export for the considered time step
+    # return ideal_oe_prop_exp_values, lv_tx_util, lv_hof_util_max, volt_all_cust_temp # return the calculated OE value for the export for the considered time step
+    return ideal_oe_prop_exp_values, lv_tx_util, lv_hof_util_max, volt_all_cust_temp, ideal_or_active_customer_kvars, ideal_or_active_customer_voltages # return the calculated OE value for the export for the considered time step
 end
 
+##
 # path to master file
 basepath = joinpath(@__DIR__, "../data/Master_nando")
 filename = joinpath(basepath, "Master.dss")
@@ -223,6 +238,8 @@ ideal_oe_prop_day_exp_values = zeros(nrow(names_active_cust),num_of_time_step)
 ideal_oe_prop_day_exp_lv_tx_util = zeros(num_of_time_step)
 ideal_oe_prop_day_exp_lv_hof_util_max = zeros(num_of_time_step)
 ideal_oe_prop_day_exp_volt_all_cust = zeros(length(load_list), num_of_time_step)
+ideal_or_active_customer_kvars = zeros(nrow(names_active_cust),num_of_time_step)
+ideal_or_active_customer_voltages = zeros(nrow(names_active_cust),num_of_time_step)
 
 # Calculate the OE values for each time step of the day in a for loop
 for itime in range(1,num_of_time_step)
@@ -249,6 +266,8 @@ for itime in range(1,num_of_time_step)
     ideal_oe_prop_day_exp_lv_hof_util_max[itime]  =results[3]
     # @show ideal_oe_prop_day_exp_volt_all_cust, itime
     ideal_oe_prop_day_exp_volt_all_cust[:, itime] .=results[4]
+    ideal_or_active_customer_kvars[:, itime] .=results[5]
+    ideal_or_active_customer_voltages[:, itime] .=results[6]
 
     # print(results)
 
@@ -277,3 +296,11 @@ for ild in range(1,length(load_list))
 end
 
 exp_voltage_compliance = (1 - ((cont_exp) / length(load_list))) * 100
+
+##
+### This section plots the volt-var plot for customers with PV
+using Plots
+i = 16
+plot(ideal_or_active_customer_voltages[i,:], ideal_or_active_customer_kvars[i,:], seriestype=:scatter)
+
+
