@@ -1,0 +1,2 @@
+new transformer.hv_F0_LV28_TX phases=4 windings=2 buses=[linebus2.1.2.3.4, HV_F0_LV28_busbar.1.2.3.4] conns=[delta, wye] kVs=[22, 0.433] kVAs=[500, 500] %loadloss=1.3 %noloadloss=0.12 Xhl=3.85 Wdg=1 NumTaps=5 Tap= 1.025 MaxTap=1.137 MinTap=1.028
+New Reactor.Grounding phases=1 bus1=linebus2.4 bus2=linebus2.0 R=0.0 X=1E-10

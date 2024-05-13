@@ -1,0 +1,10 @@
+! Imported from Monitors.txt
+! -----------------------------------------------------------
+New Monitor.LINE1_PQ_vs_Time Line.hv_f0_lv28_f0_l0_LS 2 Mode=1 ppolar=0
+New Monitor.LINE1_VI_vs_Time Line.hv_f0_lv28_f0_l0_LS 2 Mode=0
+
+New Monitor.LINE2_PQ_vs_Time Line.hv_f0_lv28_f0_l3_LS 2 Mode=1 ppolar=0
+New Monitor.LINE2_VI_vs_Time Line.hv_f0_lv28_f0_l3_LS 2 Mode=0
+
+New Monitor.LINE3_PQ_vs_Time Line.hv_f0_lv28_f0_l4_LS 2 Mode=1 ppolar=0
+New Monitor.LINE3_VI_vs_Time Line.hv_f0_lv28_f0_l4_LS 2 Mode=0
