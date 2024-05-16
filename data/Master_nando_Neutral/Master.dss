@@ -2,28 +2,32 @@ Clear
 
 Set DefaultBaseFrequency=50
 
-New Circuit.LV28 bus1=sourcebus.1 basekv=12.701706 pu=0.9952718700196848 angle=-3.51278467e-01 phases=1
+// New Circuit.LV28 bus1=sourcebus basekv=22 pu=1 phases=4
+New Circuit.LV28 bus1=HV_F0_LV28_busbar basekv=0.4 pu=1 phases=4  ISC3=100000 ISC1=100000
+// New Reactor.Grounding0 phases=1 bus1=HV_F0_LV28_busbar.4 bus2=HV_F0_LV28_busbar.0 R=0.0 X=1E-10
 
 !-----Elements--------
 Redirect LoadShapes.txt
-Redirect Vsource.txt
+// Redirect Vsource.txt
 Redirect LineCodes.txt
-Redirect Transformer.txt
+// Redirect Transformer.txt
 Redirect Lines.txt
 Redirect Customers.txt
-Redirect PVSystems.txt
-Redirect PVInverters.txt
+// Redirect PVSystems.txt
+// Redirect PVInverters.txt
 // Redirect Monitors.txt
 
 !-- Redirect PVInverters_var.txt
 
 !Fictitious line created to simulate a voltage drop/rise that would happen on the original HV-LV network when using OE export/import
-New line.line bus1=sourcebus bus2=linebus2.1.2.3.4 phases=3 length=2 units=km r1=2 x1=20 c1=400 r0=2 x0=20 c0=400 Normamps=2000 enabled=true
+// New line.line bus1=sourcebus.1.2.3.4 bus2=linebus2.1.2.3.4 phases=4 length=2 units=km r1=2 x1=20 c1=400 r0=2 x0=20 c0=400 Normamps=2000 enabled=true
 
 !-----Settings--------
-Set maxiterations=1000
-Set Maxcontroliter=1000
+// Set maxiterations=1000
+// Set Maxcontroliter=1000
+
+// set VoltageBases=[22.0, 0.400, 0.2309]
 
 !-----Load Flow------
-calcvoltagebases
+// calcvoltagebases
 calcv

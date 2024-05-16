@@ -135,7 +135,7 @@ function ideal_oe_prop_exp_algorithm(
         
         # keep the maximum utilisation on the head of feeder
         lv_hof_util_max = maximum((lv_hof_util_f0, lv_hof_util_f1, lv_hof_util_f2))
-
+        
         # verify thermal limits of transformer
         
         # select the distribution transformer and extract rated voltage at the secondary

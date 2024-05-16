@@ -13,7 +13,6 @@ Redirect Lines.txt
 Redirect Customers.txt
 Redirect PVSystems.txt
 Redirect PVInverters.txt
-// Redirect Monitors.txt
 
 !-- Redirect PVInverters_var.txt
 
